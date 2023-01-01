@@ -11,9 +11,17 @@
 </head>
 <!-- 📁 site/index.html -->
 <body>
-    <div>Добавить запись</div>
-    <div>Просмотреть записи</div>
-    <div>Удалить записи</div>
+    <div>Получить имена загруженных файлов</div>
+    <section>
+        <label for="get-file">Имя файла для получения</label><input type="text" name="get-file">
+        <div>Получить файл</div>
+    </section>
+    <form id="myForm">
+        <input type="text" value="hello" name="hello-input">
+        <label for="file-input">Выбрать изображение для отправки</label><input type="file" name="file-input">
+        <div>Отправить файл</div>
+    </form>
+    <div>Удалить все загруженные файлы</div>
     <script src="./script/script.js"></script>
 </body>
 </html>

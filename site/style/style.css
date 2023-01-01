@@ -11,8 +11,20 @@ body {
   background-color: lightgray;
   font: 20px "Calibri", sans-serif;
 }
-div {
-  background-color: white;
-  padding: 10px;
+body > * {
+  border: 3px solid slategray;
   margin: 10px;
+  padding: 10px;
+}
+label, input {
+  height: 25px;
+  font: 15px "Calibri", sans-serif;
+  margin-right: 5px;
+  outline: none;
+}
+div {
+  display: inline-block;
+  background-color: white;
+  border: 3px solid dodgerblue;
+  padding: 3px;
 }

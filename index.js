@@ -6,35 +6,73 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, path.join(path.resolve(), '/uploads'))
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + '-' + file.originalname);
+    }
+})
+const upload = multer();
+  
 const PORT = process.env.PORT ?? 3000;
 
 app.use(express.static(path.join(path.resolve(), 'site')));
 
-app.get('/add-note', (req, res) => {
-    fs.appendFile(path.join(path.resolve(), "notes.txt"), "Запись\n", error => {
-        if (error) {
-            throw error;
-        }
-        res.send("Запись добавлена");
+app.get("/get-filenames", (req, res) => {
+    fs.readdir(path.join(path.resolve(), 'uploads'), (err, files) => {
+        console.log("/get-filenames:");
+        console.log(files);
+        res.send(files.join(","));
     })
-})
-app.get('/get-notes', (req, res) => {
-    fs.readFile(path.join(path.resolve(), "notes.txt"), "utf-8", (error, data) => {
-        if (error) {
-            throw error;
+});
+app.patch("/get-file", (req, res, next) => {
+    express.text({
+        limit: parseInt(req.get("content-length"))
+    })(req, res, next);
+}, (req, res) => {
+    console.log("/get-file:");
+    console.log(req.body);
+    fs.readFile(path.join(path.resolve(), 'uploads', req.body), (err, data) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send(err);
+        } else {
+            res.status(200).send(data);
         }
-        res.send(data);
+    })    
+});
+app.post("/send-file", multer({storage: storage}).single("file-input"), (req, res) => {
+    console.log("/send-file:");
+    console.log(req.file);
+    console.log("file-name (header):");
+    console.log(req.get("file-name"));
+    res.send("Файл добавлен");
+});
+app.delete("/delete-all-files", (req, res) => {
+    new Promise((resolve, reject) => {
+        fs.readdir(path.join(path.resolve(), 'uploads'), (err, files) => {
+            resolve(files);
+        })
+    }).then(files => {
+        files.forEach(async file => {
+            if (file !== ".gitkeep") {
+                await new Promise((resolve, reject) => {
+                    fs.rm(path.join(path.resolve(), 'uploads', file), (err) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        resolve();
+                    })
+                })
+            }
+        })
+        res.send("Файлы удалены");
     })
-})
-app.get('/clear', (req, res) => {
-    fs.writeFile(path.join(path.resolve(), "notes.txt"), "", error => {
-        if (error) {
-            throw error;
-        }
-        res.send("Записи стёрты");
-    })
-})
+});
 
 // ↓ запустить сервер на порте PORT
 app.listen(PORT, () => {
