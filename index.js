@@ -10,7 +10,7 @@ const multer = require('multer');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, path.join(path.resolve(), '/uploads'))
+      cb(null, path.join(process.cwd(), '/uploads'))
     },
     filename: function (req, file, cb) {
       cb(null, Date.now() + '-' + file.originalname);
@@ -20,13 +20,16 @@ const upload = multer();
   
 const PORT = process.env.PORT ?? 3000;
 
-app.use(express.static(path.join(path.resolve(), 'site')));
+app.use(express.static(path.join(process.cwd(), 'site')));
 
 app.get("/get-filenames", (req, res) => {
-    fs.readdir(path.join(path.resolve(), 'uploads'), (err, files) => {
+    fs.readdir(path.join(process.cwd(), 'uploads'), (err, files) => {
         console.log("/get-filenames:");
         console.log(files);
-        res.send(files.join(","));
+        console.log("cwd:", process.cwd());
+        console.log("path.resolve():", path.resolve());
+        files = files.join(",");
+        res.send("cwd:" + process.cwd() + "|path.resolve():" + path.resolve() + "|files:" + files);
     })
 });
 app.patch("/get-file", (req, res, next) => {
@@ -36,7 +39,7 @@ app.patch("/get-file", (req, res, next) => {
 }, (req, res) => {
     console.log("/get-file:");
     console.log(req.body);
-    fs.readFile(path.join(path.resolve(), 'uploads', req.body), (err, data) => {
+    fs.readFile(path.join(process.cwd(), 'uploads', req.body), (err, data) => {
         if (err) {
             console.error(err);
             res.status(500).send(err);
@@ -54,14 +57,14 @@ app.post("/send-file", multer({storage: storage}).single("file-input"), (req, re
 });
 app.delete("/delete-all-files", (req, res) => {
     new Promise((resolve, reject) => {
-        fs.readdir(path.join(path.resolve(), 'uploads'), (err, files) => {
+        fs.readdir(path.join(process.cwd(), 'uploads'), (err, files) => {
             resolve(files);
         })
     }).then(files => {
         files.forEach(async file => {
             if (file !== ".gitkeep") {
                 await new Promise((resolve, reject) => {
-                    fs.rm(path.join(path.resolve(), 'uploads', file), (err) => {
+                    fs.rm(path.join(process.cwd(), 'uploads', file), (err) => {
                         if (err) {
                             reject(err);
                         }
