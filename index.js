@@ -16,7 +16,8 @@ const storage = multer.diskStorage({
       cb(null, Date.now() + '-' + file.originalname);
     }
 })
-const upload = multer();
+
+// if there isn't uploads/.gitkeep, then mkdir() and create .gitkeep file 
   
 const PORT = process.env.PORT ?? 3000;
 

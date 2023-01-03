@@ -25,9 +25,9 @@ divs[1].addEventListener('click', async event => {
             body: fileName
         });
         let blob = await response.blob();
-        console.log(await blob.text());// получение содержимого текстовых файлов
-        let img = document.createElement("img");
         console.log(blob);
+        console.log(await blob.text());// получение текстового содержимого файла
+        let img = document.createElement("img");
         img.src = URL.createObjectURL(blob);
         console.log(img.src);
         img.style.maxWidth = "250px";
